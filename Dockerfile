@@ -1,20 +1,53 @@
 # Use lightweight Node image
-FROM node:18-alpine
+#FROM node:18-alpine
 
 # Create app directory
-WORKDIR /app
+#WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+#COPY package*.json ./
 
 # Install dependencies
-RUN npm install --only=production
+#RUN npm install --only=production
 
 # Copy source code
-COPY . .
+#COPY . .
 
 # Expose port
-EXPOSE 3000
+#EXPOSE 3000
 
 # Start app
-CMD ["npm", "start"]
+#CMD ["npm", "start"]
+
+
+
+
+
+# ---------- Stage 1: Build ----------
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# copiar arquivos de dependência
+COPY package*.json ./
+
+# instalar dependências
+RUN npm ci
+
+# copiar aplicação
+COPY . .
+
+# ---------- Stage 2: Production ----------
+FROM node:18-alpine
+
+WORKDIR /app
+
+# copiar apenas o necessário do builder
+COPY --from=builder /app /app
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget -qO- http://localhost:3000 || exit 1
+
+CMD ["node", "app.js"]
