@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout código
+      # 1 Checkout código
       - uses: actions/checkout@v4
 
-      # 2️⃣ Setup Node
+      # 2 Setup Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -21,24 +21,24 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      # 3️⃣ Instalar dependências
+      # 3 Instalar dependências
       - run: npm ci
 
-      # 4️⃣ Rodar testes
+      # 4 Rodar testes
       - run: npm test || echo "No tests configured"
 
-      # 5️⃣ Setup Docker Buildx
+      # 5 Setup Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 6️⃣ Login Docker Hub
+      # 6 Login Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 7️⃣ Build e Push
+      # 7 Build e push da imagem Docker
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -47,3 +47,19 @@ jobs:
           tags: |
             lukinhas22/lucasapp:latest
             lukinhas22/lucasapp:${{ github.sha }}
+
+      # 8 Configurar credenciais AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # 9 Deploy da nova versão no ECS
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster lucasapp-dev-cluster \
+            --service lucasapp-dev-svc \
+            --force-new-deployment
