@@ -45,6 +45,12 @@ WORKDIR /app
 # copiar apenas o necessário do builder
 COPY --from=builder /app /app
 
+# receber versão da build (commit SHA vindo do pipeline)
+ARG APP_VERSION
+
+# expor versão como variável de ambiente no container
+ENV APP_VERSION=$APP_VERSION
+
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \

@@ -69,16 +69,15 @@ resource "aws_ecs_service" "app" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = aws_subnet.public[*].id
-    security_groups = [aws_security_group.ecs.id]
+    subnets          = var.subnets
+    security_groups  = [var.security_group]
     assign_public_ip = true
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.app.arn
+    target_group_arn = var.target_group_arn
     container_name   = var.project_name
     container_port   = var.container_port
   }
 
-  depends_on = [aws_lb_listener.http]
 }

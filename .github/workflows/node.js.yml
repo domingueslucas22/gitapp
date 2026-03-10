@@ -44,6 +44,8 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            APP_VERSION=${{ github.sha }}
           tags: |
             lukinhas22/lucasapp:latest
             lukinhas22/lucasapp:${{ github.sha }}

@@ -1,8 +1,8 @@
 resource "aws_lb" "this" {
   name               = "${var.project_name}-${var.environment}-alb"
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.public[*].id
+  security_groups    = [var.security_group]
+  subnets            = var.subnets
 
   tags = {
     Name = "${var.project_name}-${var.environment}-alb"
@@ -13,7 +13,7 @@ resource "aws_lb_target_group" "app" {
   name        = "${var.project_name}-${var.environment}-tg"
   port        = var.container_port
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.this.id
+  vpc_id      = var.vpc_id
   target_type = "ip"
 
   health_check {

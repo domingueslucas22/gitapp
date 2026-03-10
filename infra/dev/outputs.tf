@@ -1,7 +1,7 @@
 output "alb_dns_name" {
-  value = aws_lb.this.dns_name
+  value = module.alb.alb_dns_name
 }
 
 output "app_url" {
-  value = "http://${aws_lb.this.dns_name}"
+  value = "http://${module.alb.alb_dns_name}"
 }
